@@ -258,7 +258,7 @@ var EditForm = React.createClass({
 	},
 	renderFooterBar () {
 		const { loading } = this.state;
-		const loadingButtonText = loading ? 'Saving' : 'Save';
+		const loadingButtonText = loading ? 'Lagrer' : 'Lagre';
 
 		// Padding must be applied inline so the FooterBar can determine its
 		// innerHeight at runtime. Aphrodite's styling comes later...

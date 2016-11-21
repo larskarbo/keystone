@@ -33,13 +33,13 @@ function CreateButton ({ listName, onClick, ...props }) {
 			glyph="plus"
 			onClick={onClick}
 			position="left"
-			title={`Create ${listName}`}
+			title={`Ny ${listName}`}
 			{...props}
 		>
 			<ResponsiveText
-				visibleSM="Create"
-				visibleMD="Create"
-				visibleLG={`Create ${listName}`}
+				visibleSM="Ny"
+				visibleMD="Ny"
+				visibleLG={`Ny ${listName}`}
 			/>
 		</GlyphButton>
 	);
@@ -73,7 +73,7 @@ function ListHeaderToolbar ({
 	columnsAvailable,
 	columnsActive,
 
-	...props
+	...props,
 }) {
 	return (
 		<Group block aphroditeStyles={classes.wrapper}>

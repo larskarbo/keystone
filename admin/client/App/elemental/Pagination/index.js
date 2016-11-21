@@ -12,9 +12,9 @@ class Pagination extends Component {
 		} else if (total > pageSize) {
 			let start = (pageSize * (currentPage - 1)) + 1;
 			let end = Math.min(start + pageSize - 1, total);
-			count = `Showing ${start} to ${end} of ${total}`;
+			count = `Viser ${start} to ${end} of ${total}`;
 		} else {
-			count = 'Showing ' + total;
+			count = 'Viser ' + total;
 			if (total > 1 && plural) {
 				count += ' ' + plural;
 			} else if (total === 1 && singular) {

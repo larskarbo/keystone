@@ -108,6 +108,21 @@ var PrimaryNavigation = React.createClass({
 			);
 		});
 	},
+	renderEmailLink () {
+		
+		return (
+			<PrimaryNavItem
+					active="isActive"
+					key="section.key"
+					label="section.label"
+					className="className"
+					href="https://www.zoho.com/mail/login.html"
+					target="_blank"
+				>
+					E-post
+				</PrimaryNavItem>
+		);
+	},
 	render () {
 		if (!this.state.navIsVisible) return null;
 
@@ -117,6 +132,7 @@ var PrimaryNavigation = React.createClass({
 					<ul className="app-nav app-nav--primary app-nav--left">
 						{this.renderBrand()}
 						{this.renderNavigation()}
+						{this.renderEmailLink()}
 					</ul>
 					{this.renderFrontLink()}
 				</Container>

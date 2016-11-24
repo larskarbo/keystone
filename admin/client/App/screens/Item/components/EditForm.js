@@ -59,7 +59,7 @@ var EditForm = React.createClass({
 			confirmationDialog: null,
 			loading: false,
 			lastValues: null, // used for resetting
-			focusFirstField: !this.props.list.nameField && !this.props.list.nameFieldIsFormHeader,
+			//focusFirstField: !this.props.list.nameField && !this.props.list.nameFieldIsFormHeader,
 		};
 	},
 	componentDidMount () {
@@ -90,6 +90,8 @@ var EditForm = React.createClass({
 		const values = assign({}, this.state.values);
 
 		values[event.path] = event.value;
+		console.log('handleChange',{values})
+
 		this.setState({ values });
 	},
 
@@ -125,12 +127,14 @@ var EditForm = React.createClass({
 	updateItem () {
 		const { data, list } = this.props;
 		const editForm = this.refs.editForm;
+		console.log($(editForm).serializeArray())
 		const formData = new FormData(editForm);
 
 		// Show loading indicator
 		this.setState({
 			loading: true,
 		});
+
 
 		list.updateItem(data.id, formData, (err, data) => {
 			smoothScrollTop();
@@ -154,6 +158,7 @@ var EditForm = React.createClass({
 					values: data.fields,
 					loading: false,
 				});
+				this.forceUpdate()
 			}
 		});
 	},
@@ -208,7 +213,7 @@ var EditForm = React.createClass({
 			var nameFieldProps = this.getFieldProps(nameField);
 			nameFieldProps.label = null;
 			nameFieldProps.size = 'full';
-			nameFieldProps.autoFocus = true;
+			nameFieldProps.autoFocus = false;
 			nameFieldProps.inputProps = {
 				className: 'item-name-field',
 				placeholder: nameField.label,

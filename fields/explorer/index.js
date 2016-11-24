@@ -8,6 +8,7 @@ const Types = {
 	Code: require('../types/code/test/explorer'),
 	Color: require('../types/color/test/explorer'),
 	CloudinaryImage: require('../types/cloudinaryimage/test/explorer'),
+	CloudinaryLars: require('../types/cloudinarylars/test/explorer'),
 	CloudinaryImages: require('../types/cloudinaryimages/test/explorer'),
 	Date: require('../types/date/test/explorer'),
 	DateArray: require('../types/datearray/test/explorer'),

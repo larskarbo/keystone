@@ -36,11 +36,11 @@ function getEmptyValue () {
 }
 
 /**
- * CloudinaryImage FieldType Constructor
+ * CloudinaryLars FieldType Constructor
  * @extends Field
  * @api public
  */
-function cloudinaryimage (list, path, options) {
+function cloudinarylars (list, path, options) {
 	this._underscoreMethods = ['format'];
 	this._fixedSize = 'full';
 	this._properties = ['select', 'selectPrefix', 'autoCleanup'];
@@ -53,23 +53,23 @@ function cloudinaryimage (list, path, options) {
 	options = assign({}, DEFAULT_OPTIONS, options);
 	options.generateFilename = ensureCallback(options.generateFilename);
 
-	cloudinaryimage.super_.call(this, list, path, options);
+	cloudinarylars.super_.call(this, list, path, options);
 	// validate cloudinary config
 	if (!keystone.get('cloudinary config')) {
 		throw new Error(
 			'Invalid Configuration\n\n'
-			+ 'CloudinaryImage fields (' + list.key + '.' + this.path + ') require the "cloudinary config" option to be set.\n\n'
+			+ 'CloudinaryLars fields (' + list.key + '.' + this.path + ') require the "cloudinary config" option to be set.\n\n'
 			+ 'See http://keystonejs.com/docs/configuration/#services-cloudinary for more information.\n'
 		);
 	}
 }
-cloudinaryimage.properName = 'CloudinaryImage';
-util.inherits(cloudinaryimage, FieldType);
+cloudinarylars.properName = 'CloudinaryLars';
+util.inherits(cloudinarylars, FieldType);
 
 /**
  * Gets the folder for images in this field
  */
-cloudinaryimage.prototype.getFolder = function () {
+cloudinarylars.prototype.getFolder = function () {
 	var folder = null;
 	if (keystone.get('cloudinary folders') || this.options.folder) {
 		if (typeof this.options.folder === 'string') {
@@ -87,7 +87,7 @@ cloudinaryimage.prototype.getFolder = function () {
 /**
  * Registers the field on the List's Mongoose Schema.
  */
-cloudinaryimage.prototype.addToSchema = function (schema) {
+cloudinarylars.prototype.addToSchema = function (schema) {
 
 	var cloudinary = require('cloudinary');
 
@@ -265,14 +265,14 @@ cloudinaryimage.prototype.addToSchema = function (schema) {
 /**
  * Formats the field value
  */
-cloudinaryimage.prototype.format = function (item) {
+cloudinarylars.prototype.format = function (item) {
 	return item.get(this.paths.url);
 };
 
 /**
  * Gets the field's data from an Item, as used by the React components
  */
-cloudinaryimage.prototype.getData = function (item) {
+cloudinarylars.prototype.getData = function (item) {
 	var value = item.get(this.path);
 	return typeof value === 'object' ? value : {};
 };
@@ -280,30 +280,20 @@ cloudinaryimage.prototype.getData = function (item) {
 /**
  * Detects whether the field has been modified
  */
-cloudinaryimage.prototype.isModified = function (item) {
+cloudinarylars.prototype.isModified = function (item) {
 	return item.isModified(this.paths.public_id);
 };
 
 
 function validateInput (value) {
-	// undefined values are always valid
-	if (value === undefined || value === null || value === '') return true;
-	// If a string is provided, check it is an upload or delete instruction
-	// TODO: This should really validate files as well, but that's not pased to this method
-	if (typeof value === 'string' && /^(upload\:)|(delete$)|(data:[a-z\/]+;base64)|(https?\:\/\/)/.test(value)){
-		console.log('validated climage!')
-		return true;
-	}
-	// If the value is an object and has a cloudinary public_id, it is valid
-	if (typeof value === 'object' && value.public_id) return true;
-	// None of the above? we can't recognise it.
-	return false;
+	
+	return true;
 }
 
 /**
  * Validates that a value for this field has been provided in a data object
  */
-cloudinaryimage.prototype.validateInput = function (data, callback) {
+cloudinarylars.prototype.validateInput = function (data, callback) {
 	var value = this.getValueFromData(data);
 	var result = validateInput(value);
 	utils.defer(callback, result);
@@ -312,7 +302,7 @@ cloudinaryimage.prototype.validateInput = function (data, callback) {
 /**
  * Validates that input has been provided
  */
-cloudinaryimage.prototype.validateRequiredInput = function (item, data, callback) {
+cloudinarylars.prototype.validateRequiredInput = function (item, data, callback) {
 	// TODO: We need to also get the `files` argument, so we can check for
 	// uploaded files. without it, this will return false negatives so we
 	// can't actually validate required input at the moment.
@@ -327,7 +317,7 @@ cloudinaryimage.prototype.validateRequiredInput = function (item, data, callback
  *
  * Deprecated
  */
-cloudinaryimage.prototype.inputIsValid = function () {
+cloudinarylars.prototype.inputIsValid = function () {
 	return true;
 };
 
@@ -351,121 +341,29 @@ function trimSupportedFileExtensions (publicId) {
 	return publicId;
 }
 
-/**
- * Updates the value for this field in the item from a data object
- * TODO: It is not possible to remove an existing value and upload a new image
- * in the same action, this should be supported
- */
-cloudinaryimage.prototype.updateItem = function (item, data, files, callback) {
-	// Process arguments
-	if (typeof files === 'function') {
-		callback = files;
-		files = {};
-	}
-	if (!files) {
-		files = {};
-	}
 
-	var cloudinary = require('cloudinary');
-	var field = this;
-
-	// Prepare values
+cloudinarylars.prototype.updateItem = function (item, data, callback) {
 	var value = this.getValueFromData(data);
-	var uploadedFile;
+	
+	console.log(value)
+	console.log(this.path)
+	item.set(this.path, value);
 
-	// Providing the string "remove" removes the file and resets the field
-	if (value === 'remove') {
-		cloudinary.uploader.destroy(item.get(field.paths.public_id), function (result) {
-			if (result.error) {
-				callback(result.error);
-			} else {
-				item.set(field.path, getEmptyValue());
-				callback();
-			}
-		});
-		return;
-	}
-
-	// Find an uploaded file in the files argument, either referenced in the
-	// data argument or named with the field path / field_upload path + suffix
-	// Base64 data and remote URLs are also accepted as images to upload
-	if (typeof value === 'string' && value.substr(0, 7) === 'upload:') {
-		uploadedFile = files[value.substr(7)];
-	} else if (typeof value === 'string' && /^(data:[a-z\/]+;base64)|(https?\:\/\/)/.test(value)) {
-		uploadedFile = { path: value };
-	} else {
-		uploadedFile = this.getValueFromData(files) || this.getValueFromData(files, '_upload');
-	}
-
-	// Ensure a valid file was uploaded, else null out the value
-	if (uploadedFile && !uploadedFile.path) {
-		uploadedFile = undefined;
-	}
-
-	// If we have a file to upload, we do that and stop here
-	if (uploadedFile) {
-		var tagPrefix = keystone.get('cloudinary prefix') || '';
-		var uploadOptions = {
-			tags: [],
-		};
-		if (tagPrefix.length) {
-			uploadOptions.tags.push(tagPrefix);
-			tagPrefix += '_';
-		}
-		uploadOptions.tags.push(tagPrefix + field.list.path + '_' + field.path);
-		if (keystone.get('env') !== 'production') {
-			uploadOptions.tags.push(tagPrefix + 'dev');
-		}
-		var folder = this.getFolder();
-		if (folder) {
-			uploadOptions.folder = folder;
-		}
-		this.getFilename(uploadedFile, function (err, filename) {
-			if (err) return callback(err);
-			// If an undefined filename is returned, Cloudinary will automatically generate a unique
-			//   filename. Therefore undefined is a valid filename value.
-			if (filename !== undefined) {
-				filename = sanitize(filename);
-				uploadOptions.public_id = trimSupportedFileExtensions(filename);
-			}
-			// TODO: implement autoCleanup; should delete existing images before uploading
-			cloudinary.uploader.upload(uploadedFile.path, function (result) {
-				if (result.error) {
-					return callback(result.error);
-				} else {
-					item.set(field.path, result);
-					return callback();
-				}
-			}, uploadOptions);
-		});
-
-		return;
-	}
-
-	// Empty / null values reset the field
-	if (value === null || value === '' || (typeof value === 'object' && !Object.keys(value).length)) {
-		value = getEmptyValue();
-	}
-
-	// If there is a valid value at this point, set it on the field
-	if (typeof value === 'object') {
-		item.set(this.path, value);
-	}
-	utils.defer(callback);
+	process.nextTick(callback);
 };
 
 /**
 	Generates a filename with the provided method in a retry loop, used by
 	getFilename below
 */
-cloudinaryimage.prototype.retryFilename = prototypeMethods.retryFilename;
+cloudinarylars.prototype.retryFilename = prototypeMethods.retryFilename;
 
 /**
 	Gets a filename for uploaded files based on the adapter options
 */
-cloudinaryimage.prototype.getFilename = prototypeMethods.getFilename;
+cloudinarylars.prototype.getFilename = prototypeMethods.getFilename;
 
-cloudinaryimage.prototype.fileExists = function (filename, callback) {
+cloudinarylars.prototype.fileExists = function (filename, callback) {
 	var cloudinary = require('cloudinary');
 	cloudinary.api.resource(filename, function (result) {
 		if (result.error && result.error.http_code === 404) {
@@ -490,7 +388,7 @@ cloudinaryimage.prototype.fileExists = function (filename, callback) {
  *
  * @api public
  */
-cloudinaryimage.prototype.getRequestHandler = function (item, req, paths, callback) {
+cloudinarylars.prototype.getRequestHandler = function (item, req, paths, callback) {
 
 	var cloudinary = require('cloudinary');
 	var field = this;
@@ -581,4 +479,4 @@ cloudinaryimage.prototype.getRequestHandler = function (item, req, paths, callba
 };
 
 /* Export Field Type */
-module.exports = cloudinaryimage;
+module.exports = cloudinarylars;

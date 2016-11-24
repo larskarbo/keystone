@@ -13,7 +13,7 @@ function ItemsTableValue ({
 	padded,
 	to,
 	truncate,
-	...props
+	...props,
 }) {
 	// TODO remove in the next release
 	if (href) {
@@ -53,6 +53,7 @@ ItemsTableValue.propTypes = {
 ItemsTableValue.defaultProps = {
 	component: 'div',
 	truncate: true,
+	exterior:true
 };
 
 module.exports = ItemsTableValue;

@@ -15,6 +15,8 @@ import cloudinaryResize from '../../../admin/client/utils/cloudinaryResize';
 import Thumbnail from './CloudinaryImagesThumbnail';
 import HiddenFileInput from '../../components/HiddenFileInput';
 import FileChangeMessage from '../../components/FileChangeMessage';
+// import CloudinaryWidgetInput from '../../components/CloudinaryWidgetInput';
+import AdvancedUploadInput from '../../components/AdvancedUploadInput';
 
 const SUPPORTED_TYPES = ['image/*', 'application/pdf', 'application/postscript'];
 const SUPPORTED_REGEX = new RegExp(/^image\/|application\/pdf|application\/postscript/g);
@@ -26,6 +28,7 @@ const RESIZE_DEFAULTS = {
 let uploadInc = 1000;
 
 module.exports = Field.create({
+	// inputFiles: 'yeaah',
 	displayName: 'CloudinaryImagesField',
 	statics: {
 		type: 'CloudinaryImages',
@@ -59,7 +62,7 @@ module.exports = Field.create({
 				}),
 			}, index);
 		}) : [];
-		return { thumbnails, uploadFieldPath };
+		return { thumbnails, uploadFieldPath, inputFiles:[] };
 	},
 	getThumbnail (props, index) {
 		return (
@@ -79,7 +82,7 @@ module.exports = Field.create({
 	// ==============================
 
 	triggerFileBrowser () {
-		this.refs.fileInput.clickDomNode();
+		this.refs.fileInput.clickDomNode()
 	},
 	hasFiles () {
 		return this.refs.fileInput && this.refs.fileInput.hasValue();
@@ -156,6 +159,8 @@ module.exports = Field.create({
 			files.push(f);
 		}
 
+		
+
 		let index = this.state.thumbnails.length;
 		async.mapSeries(files, (file, callback) => {
 			const reader = new FileReader();
@@ -180,15 +185,20 @@ module.exports = Field.create({
 	renderFileInput () {
 		if (!this.shouldRenderField()) return null;
 
+
+
 		return (
-			<HiddenFileInput
-				accept={SUPPORTED_TYPES.join()}
-				key={this.state.uploadFieldPath}
-				multiple
-				name={this.state.uploadFieldPath}
-				onChange={this.uploadFile}
-				ref="fileInput"
-			/>
+			<div>
+				<HiddenFileInput
+					accept={SUPPORTED_TYPES.join()}
+					key={this.state.uploadFieldPath}
+					multiple
+					name={this.state.uploadFieldPath}
+					onChange={this.uploadFile}
+					ref="fileInput"
+					// value={this.state.inputFiles}
+				/>
+			</div>
 		);
 	},
 	renderValueInput () {
@@ -272,13 +282,21 @@ module.exports = Field.create({
 
 		return (
 			<div style={toolbarStyles}>
-				<Button onClick={this.triggerFileBrowser} style={uploadButtonStyles} data-e2e-upload-button="true">
-					Upload Images
-				</Button>
-				{this.hasFiles() && (
-					<Button variant="link" color="cancel" onClick={this.clearFiles}>
-						Clear selection
+				{!this.hasFiles() && (
+					<Button onClick={this.triggerFileBrowser} style={uploadButtonStyles} data-e2e-upload-button="true">
+						Upload Images
 					</Button>
+				)}
+				{this.hasFiles() && (
+					<div>
+						<p>
+							(Lagre for å legge til fleire)
+						</p>
+						
+						<Button variant="link" color="cancel" onClick={this.clearFiles}>
+							Clear selection
+						</Button>
+					</div>
 				)}
 				{changeMessage}
 				{saveMessage}

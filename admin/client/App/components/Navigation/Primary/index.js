@@ -111,6 +111,7 @@ var PrimaryNavigation = React.createClass({
 	renderEmailLink () {
 		
 		return (
+			<div>
 			<PrimaryNavItem
 					active="isActive"
 					key="section.key"
@@ -119,8 +120,9 @@ var PrimaryNavigation = React.createClass({
 					href="https://www.zoho.com/mail/login.html"
 					target="_blank"
 				>
-					E-post
+					E-post og Kalender
 				</PrimaryNavItem>
+			</div>
 		);
 	},
 	render () {

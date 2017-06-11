@@ -111,7 +111,6 @@ var PrimaryNavigation = React.createClass({
 	renderEmailLink () {
 		
 		return (
-			<div>
 			<PrimaryNavItem
 					active="isActive"
 					key="section.key"
@@ -122,7 +121,6 @@ var PrimaryNavigation = React.createClass({
 				>
 					E-post og Kalender
 				</PrimaryNavItem>
-			</div>
 		);
 	},
 	render () {

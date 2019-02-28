@@ -12,7 +12,23 @@ var ENTER_KEYCODE = 13;
 
 function newItem (value) {
 	lastId = lastId + 1;
-	return { key: 'i' + lastId, value: value };
+	if (typeof value === 'string') {
+		var splitted = value.split('§§');
+		value = {
+			title: splitted[0],
+			description: splitted[1],
+			price: splitted[2],
+		};
+	}
+	var def = {
+		title: '',
+		description: '',
+		price: 0,
+	};
+	return {
+		key: 'i' + lastId,
+		value: Object.assign(def, value),
+	};
 }
 
 function reduceValues (values) {
@@ -35,7 +51,7 @@ module.exports = {
 	},
 
 	addItem: function () {
-		var newValues = this.state.values.concat(newItem(''));
+		var newValues = this.state.values.concat(newItem({}));
 		this.setState({
 			values: newValues,
 		}, () => {
@@ -55,11 +71,12 @@ module.exports = {
 		this.valueChanged(reduceValues(newValues));
 	},
 
-	updateItem: function (i, event) {
+	updateItem: function (i, prop, event) {
 		var updatedValues = this.state.values;
 		var updateIndex = updatedValues.indexOf(i);
 		var newValue = event.value || event.target.value;
-		updatedValues[updateIndex].value = this.cleanInput ? this.cleanInput(newValue) : newValue;
+		updatedValues[updateIndex].value[prop] = newValue;
+		console.log('updatedValues: ', updatedValues);
 		this.setState({
 			values: updatedValues,
 		});
@@ -68,6 +85,10 @@ module.exports = {
 
 	valueChanged: function (values) {
 		this.props.onChange({
+			path: this.props.path,
+			value: values,
+		});
+		console.log('➡4', {
 			path: this.props.path,
 			value: values,
 		});
@@ -83,13 +104,13 @@ module.exports = {
 	},
 
 	renderItem: function (item, index) {
-		const Input = this.getInputComponent ? this.getInputComponent() : FormInput;
-		const value = this.processInputValue ? this.processInputValue(item.value) : item.value;
+		const Input = FormInput;
+		const value = item.value;
 		return (
 			<FormField key={item.key}>
-				<Input name={this.getInputName(this.props.path)} value={value} onChange={this.updateItem.bind(this, item)} onKeyDown={this.addItemOnEnter}s />
-				<Input name={this.getInputName(this.props.path)} value={value} onChange={this.updateItem.bind(this, item)} onKeyDown={this.addItemOnEnter}s />
-				<Input name={this.getInputName(this.props.path)} value={value} onChange={this.updateItem.bind(this, item)} onKeyDown={this.addItemOnEnter}s />
+                Tittel: <Input className="yotitle" name={'soap' + this.getInputName(this.props.path) + '$' + item.key + '$' + 'title'} value={value.title} onChange={this.updateItem.bind(this, item, 'title')} onKeyDown={this.addItemOnEnter} s />
+                Beskrivelse: <Input className="yodescription" name={'soap' + this.getInputName(this.props.path) + '$' + item.key + '$' + 'description'} value={value.description} onChange={this.updateItem.bind(this, item, 'description')} onKeyDown={this.addItemOnEnter} s />
+                Pris: <Input className="yoprice" name={'soap' + this.getInputName(this.props.path) + '$' + item.key + '$' + 'price'} value={value.price} onChange={this.updateItem.bind(this, item, 'price')} onKeyDown={this.addItemOnEnter} s />
 				<Button type="link-cancel" onClick={this.removeItem.bind(this, item)} className="keystone-relational-button">
 					<span className="octicon octicon-x" />
 				</Button>
@@ -113,7 +134,7 @@ module.exports = {
 		);
 	},
 
-	// Override shouldCollapse to check for array length
+    // Override shouldCollapse to check for array length
 	shouldCollapse: function () {
 		return this.props.collapse && !this.props.value.length;
 	},

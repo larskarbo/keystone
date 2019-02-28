@@ -90,7 +90,7 @@ var EditForm = React.createClass({
 		const values = assign({}, this.state.values);
 
 		values[event.path] = event.value;
-		console.log('handleChange',{values})
+		console.log('handleChange', { values });
 
 		this.setState({ values });
 	},
@@ -127,8 +127,34 @@ var EditForm = React.createClass({
 	updateItem () {
 		const { data, list } = this.props;
 		const editForm = this.refs.editForm;
-		console.log($(editForm).serializeArray())
+		console.log('editForm: ', editForm);
 		const formData = new FormData(editForm);
+		var tits = this.refs.editForm.querySelectorAll('.yotitle');
+		var titsarr = Array.prototype.slice.call(tits);
+		var desc = this.refs.editForm.querySelectorAll('.yotitle');
+		var descarr = Array.prototype.slice.call(desc);
+		var price = this.refs.editForm.querySelectorAll('.yotitle');
+		var pricearr = Array.prototype.slice.call(price);
+		var ttty = titsarr.map((title, i) => {
+			return {
+				title: title.value,
+				description: descarr[i].value,
+				price: pricearr[i].value,
+			};
+		});
+		// formData.set('pameldingsinfo.felt', ttty);
+
+		// let jsonObject = {};
+
+		// for (var [key, value] of formData.entries()) {
+		// 	jsonObject[key] = value;
+		// }
+
+		// jsonObject['pameldingsinfo.felt'] = ttty;
+		console.log('ttty: ', ttty);
+		console.log('formData: ', JSON.parse(JSON.stringify(formData)));
+		console.log('formData: ', formData);
+		console.log('formData: ', formData['pameldingsinfo.felt']);
 
 		// Show loading indicator
 		this.setState({
@@ -158,7 +184,7 @@ var EditForm = React.createClass({
 					values: data.fields,
 					loading: false,
 				});
-				this.forceUpdate()
+				this.forceUpdate();
 			}
 		});
 	},
